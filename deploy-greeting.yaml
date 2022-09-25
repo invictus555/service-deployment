@@ -1,0 +1,151 @@
+--- # greeting-server
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeting
+  labels:
+    version: v1
+    service: greeting
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: greeting
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeting-v1
+  labels:
+    app: greeting
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greeting
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: greeting
+        version: v1
+    spec:
+      containers:
+      - name: greeting
+        image: 1104244030/greeting-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        args: 
+        - --port=9080
+        env:
+        - name: GREETING_WORDS
+          value: "v1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeting-v2
+  labels:
+    app: greeting
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greeting
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: greeting
+        version: v2
+    spec:
+      containers:
+      - name: greeting
+        image: 1104244030/greeting-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        args: 
+        - --port=9080
+        env:
+        - name: GREETING_WORDS
+          value: "v2"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeting-v3
+  labels:
+    app: greeting
+    version: v3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greeting
+      version: v3
+  template:
+    metadata:
+      labels:
+        app: greeting
+        version: v3
+    spec:
+      containers:
+      - name: greeting
+        image: 1104244030/greeting-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        args: 
+        - --port=9080
+        env:
+        - name: GREETING_WORDS
+          value: "v3"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client
+  labels:
+    version: v1
+    service: client
+spec:
+  type: NodePort
+  ports:
+  - port: 8088
+    name: http
+    nodePort: 30000
+  selector:
+    app: client
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  labels:
+    app: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+      - name: client
+        image: 1104244030/greeting-client:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8088
+        args:
+        - --httpServerPort=8088
+        - --greetingServerPort=9080
+        - --greetingServerAddress=greeting.greeting.svc.cluster.local
+      
